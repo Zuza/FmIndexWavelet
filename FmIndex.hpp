@@ -16,6 +16,7 @@ public:
   // counts the number of occurences of the query as a substring within the text
   ullint count_substrings(char* query, int query_len);
 
+  void get_substring_pos(vector<llint> &results, char* query, int query_len);
 private:
   char alphabet_map[256]; 
   ullint data_sz;

@@ -73,3 +73,6 @@ ullint FmIndex::count_substrings(char* query, int query_len) {
   return hi - lo;
 }
 
+void get_substring_pos(vector<llint> &results, char* query, int query_len) {
+  assert(false);
+}
