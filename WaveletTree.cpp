@@ -1,4 +1,5 @@
 #include "WaveletTree.hpp"
+#include "util.hpp"
 
 #include <algorithm>
 
@@ -70,4 +71,51 @@ ullint WaveletTree::get_rank(char c, ullint pos) {
   }
 
   return pos;
+}
+
+char WaveletTree::get_char_at(ullint pos, ullint& rank) {
+  int tree_ptr = 1;
+  int lo = 0, hi = alphabet_sz;
+
+  while (lo+1 < hi) {
+    int mid = (lo + hi) / 2;
+
+    bool bit = nodes[tree_ptr].bitmap.get_bit(pos);
+    ullint bit_rank = nodes[tree_ptr].bitmap.get_rank(bit, pos); // TODO: optimize?
+
+    pos = bit_rank;
+
+    if (bit == 0) {
+      tree_ptr = 2*tree_ptr;
+      hi = mid;
+    } else {
+      tree_ptr = 2*tree_ptr + 1;
+      lo = mid;
+    }
+  }
+
+  rank = pos;
+  return lo;
+}
+
+void WaveletTree::serialize(FILE* out) const {
+  ullint sz = nodes.size();
+  ::serialize(out, sz);
+  for (ullint i = 0; i < sz; ++i) {
+    nodes[i].bitmap.serialize(out);
+  }
+  ::serialize(out, alphabet_sz);
+}
+
+void WaveletTree::deserialize(FILE* in) {
+  ullint sz;
+  ::deserialize(in, sz);
+  nodes.clear();
+  if (sz > 0) {
+    nodes.resize(sz);
+    for (ullint i = 0; i < sz; ++i) {
+      nodes[i].bitmap.deserialize(in);
+    }
+  }
+  ::deserialize(in, alphabet_sz);
 }

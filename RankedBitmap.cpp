@@ -1,4 +1,5 @@
 #include "RankedBitmap.hpp"
+#include "util.hpp"
 
 #include <algorithm>
 
@@ -18,7 +19,7 @@ typedef unsigned long long ullint;
 const int kBitmapSuperbucketPow = 16; // shoule be <= 16, because of unsigned short int
 const int kBitmapSuperbucketValM1 = (1 << kBitmapSuperbucketPow) - 1;
 
-const int kBitmapBucketPow = 4;
+const int kBitmapBucketPow = 4; // should be at least 3
 const int kBitmapBucketValM1 = (1 << kBitmapBucketPow) - 1;
 
 RankedBitmap::RankedBitmap() {}
@@ -82,8 +83,50 @@ ullint RankedBitmap::get_rank(bool bit, ullint pos) {
   ullint rank = 
     + superbuckets[pos >> kBitmapSuperbucketPow]
     + buckets[pos >> kBitmapBucketPow];
-  for (ullint i_pos = pos&(~kBitmapBucketValM1); i_pos < pos; ++i_pos) { // TODO: switch to popcount!!!
-    rank += (get_bit(i_pos) == 0);
+
+  static int popCnt[256] = {-1};
+  if (popCnt[0] == -1) {
+    popCnt[0] = 0;
+    for (int i = 1; i < 256; ++i)
+      popCnt[i] = popCnt[i>>1] + (i&1);
   }
+
+  ullint i_pos = pos&(~kBitmapBucketValM1);
+  for (; i_pos+8 < pos; i_pos += 8) {
+    assert((0xff & bitmask[i_pos >> 3]) < 256);
+    rank += 8 - popCnt[0xff & bitmask[i_pos >> 3]];
+  }
+
+  int mask = (1 << (pos - i_pos)) - 1;
+  assert((0xff & (bitmask[i_pos >> 3] | (~mask))) < 256);
+  rank += 8 - popCnt[0xff & (bitmask[i_pos >> 3] | (~mask))];
+
+  // ------------- This is a more naive version of the upper code --------------------
+  // ullint brute_rank = 
+  //   + superbuckets[pos >> kBitmapSuperbucketPow]
+  //   + buckets[pos >> kBitmapBucketPow];
+  // for (ullint i_pos = pos&(~kBitmapBucketValM1); i_pos < pos; ++i_pos) { // TODO: switch to popcount!!!
+  //   brute_rank += (get_bit(i_pos) == 0);
+  // }
+
+  //  printf("bit = %d pos = %llu rank = %llu brute = %llu\n", bit, pos, rank, brute_rank);
+  //  assert(rank == brute_rank);
+
   return (bit == 0) ? (rank) : (pos-rank);
+}
+
+void RankedBitmap::serialize(FILE* out) const {
+  ::serialize(out, n_elements);
+  ::serialize(out, bitmask_sz);
+  serialize_vector(out, bitmask);
+  serialize_vector(out, superbuckets);
+  serialize_vector(out, buckets);
+}
+
+void RankedBitmap::deserialize(FILE* in) {
+  ::deserialize(in, n_elements);
+  ::deserialize(in, bitmask_sz);
+  deserialize_vector(in, bitmask);
+  deserialize_vector(in, superbuckets);
+  deserialize_vector(in, buckets);
 }

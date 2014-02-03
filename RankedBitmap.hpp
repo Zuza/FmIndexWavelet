@@ -1,6 +1,7 @@
 #ifndef _RANKED_BITMAP_H_
 #define _RANKED_BITMAP_H_
 
+#include <cstdio>
 #include <vector>
 
 typedef unsigned long long ullint;
@@ -22,6 +23,9 @@ public:
   // if bit == 0: how many 0's in [0, 1, 2, ..., pos)
   // else         how many 1's in [0, 1, 2, ..., pos)
   ullint get_rank(bool bit, ullint pos);
+
+  void serialize(FILE* out) const;
+  void deserialize(FILE* in);
 
 private:
   ullint n_elements;
