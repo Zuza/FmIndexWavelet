@@ -21,7 +21,7 @@ const int kFmSparseSaValM1 = 31;
 FmIndex::FmIndex(char* data, ullint orig_data_sz, const char* alphabet, int orig_alphabet_sz) {
   this->data_sz = orig_data_sz + 1;
 
-  // make a dummy 0.th char -> #
+  // make a dummy 0.th char (separator, no particular ASCII code)
   memset(alphabet_map, -1, sizeof alphabet_map);
   for (int i = 0; i < orig_alphabet_sz; ++i) {
     alphabet_map[(int)alphabet[i]] = i + 1; // +1 because of the terminator
@@ -69,7 +69,7 @@ FmIndex::FmIndex(char* data, ullint orig_data_sz, const char* alphabet, int orig
     }
   }
 
-  wavelet.init(bwt.data(), data_sz, alphabet_sz);
+  bwt_wavelet.init(bwt.data(), data_sz, alphabet_sz);
 }
 
 // read index from (binary) file
@@ -77,26 +77,27 @@ FmIndex::FmIndex(FILE* in) {
   this->deserialize(in);
 }
 
-// counts the number of occurences of the query as a substring within the text
-ullint FmIndex::count_substrings(char* query, int query_len) {
+// counts the number of occurrences of the query as a substring within the text
+ullint FmIndex::count_substrings(const char* query, int query_len) {
   pair<ullint, ullint> ret = get_substring_idx_bounds(query, query_len);
   return ret.second - ret.first;
 }
 
-pair<ullint, ullint> FmIndex::get_substring_idx_bounds(char* query, int query_len) {
+pair<ullint, ullint> FmIndex::get_substring_idx_bounds(const char* query, int query_len) {
   int last_val = alphabet_map[(int)query[query_len - 1]];
   ullint lo = prefix_sums[last_val], hi = prefix_sums[last_val + 1];
 
   for (int iter = query_len - 2; iter >= 0; --iter) {
     int val = alphabet_map[(int)query[iter]];
-    lo = prefix_sums[val] + wavelet.get_rank(val, lo);
-    hi = prefix_sums[val] + wavelet.get_rank(val, hi);
+    lo = prefix_sums[val] + bwt_wavelet.get_rank(val, lo);
+    hi = prefix_sums[val] + bwt_wavelet.get_rank(val, hi);
+    if (lo >= hi) break;
   }
   
   return make_pair(lo, hi);
 }
 
-void FmIndex::get_substring_pos(vector<ullint> &results, char* query, int query_len, int limit) {
+void FmIndex::get_substring_pos(vector<ullint> &results, const char* query, int query_len, int limit) {
   results.clear();
 
   pair<ullint, ullint> ret = get_substring_idx_bounds(query, query_len);
@@ -122,7 +123,7 @@ void FmIndex::get_substring_pos(vector<ullint> &results, char* query, int query_
 
 ullint FmIndex::lf_mapping(ullint pos) {
   ullint rank;
-  int c = wavelet.get_char_at(pos, rank);
+  int c = bwt_wavelet.get_char_at(pos, rank);
   return rank + prefix_sums[c];
 }
 
@@ -131,7 +132,7 @@ void FmIndex::serialize(FILE* out) const {
                 sizeof(alphabet_map) / sizeof(alphabet_map[0]), out) > 0);
   ::serialize(out, data_sz);
   serialize_vector(out, prefix_sums);
-  wavelet.serialize(out);
+  bwt_wavelet.serialize(out);
   serialize_umap(out, sparse_sa);
 }
 
@@ -140,6 +141,6 @@ void FmIndex::deserialize(FILE* in) {
                 sizeof(alphabet_map) / sizeof(alphabet_map[0]), in) > 0);
   ::deserialize(in, data_sz);
   deserialize_vector(in, prefix_sums);
-  wavelet.deserialize(in);
+  bwt_wavelet.deserialize(in);
   deserialize_umap(in, sparse_sa);
 }

@@ -20,6 +20,7 @@ public:
   void init(char* data, ullint data_sz, int alphabet_sz);
 
   // Number of occurences of c in data positions [0, 1, 2, ..., pos-1]
+  // c should be in [0, 1, ..., alphabet_sz-1]
   ullint get_rank(char c, ullint pos);
 
   // The character at position pos (+ gets the rank of it)

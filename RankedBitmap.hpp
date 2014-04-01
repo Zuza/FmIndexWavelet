@@ -9,10 +9,13 @@ typedef unsigned long long ullint;
 class RankedBitmap {
 public:
   RankedBitmap();
+
+  // see function init(...)
   RankedBitmap(const char* data, ullint data_len, ullint n_elements, int zero_lo, int one_lo, int one_hi);
 
+  // (called automatically from constructor)
   // initialize bitmask with those indices i in [0, data_len) such that zero_lo <= data[i] < one_hi
-  // assertion: there must be n_elements such indices !
+  // assertion: there must be n_elements such ZERO+ONE indices
   // if zero_lo <= data[i] < one_lo -> it's value is 0
   // if one_lo <= data[i] < one_hi  -> it's value is 1
   void init(const char* data, ullint data_len, ullint n_elements, int zero_lo, int one_lo, int one_hi);

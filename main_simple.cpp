@@ -21,26 +21,24 @@ typedef unsigned long long ullint;
 
 int main() {
   const char alpha[] = "ACGT"; int alpha_sz = strlen(alpha);
-  static char data[] = "AGTTCAGATCT"; int data_len = strlen(data);
+  static char data[] = "AGTCTAGATCTA"; int data_len = strlen(data);
 
-//  const char alpha[] = "ABN"; int alpha_sz = strlen(alpha);
-//  static char data[] = "BANANA"; int data_len = strlen(data);
+  printf("data = %s\n", data);
 
   static char orig_data[123];
-
   strncpy(orig_data, data, data_len);
   orig_data[data_len] = 0;
 
-  FmIndex fmindex(data, data_len, alpha, alpha_sz);
+  FmIndex fmindex(data, data_len, alpha, alpha_sz); // garbles data
 
+  /////// Count number of substrings CTA ///////
   static char query[] = "CTA";
-
   ullint cnt = fmindex.count_substrings(query, strlen(query));
   printf("cnt = %llu\n", cnt);
 
+  ////// Print all occurences of substring CTA ///////
   vector<ullint> results;
   fmindex.get_substring_pos(results, query, strlen(query));
-
   for (int i = 0; i < (int)results.size(); ++i) {
     printf("result[%d] = %llu\n", i, results[i]);
   }
