@@ -28,6 +28,6 @@ main_dnaindex: $(OBJS) main_dnaindex.cpp
 	g++ $+ -o $@ $(CFLAGS) $(LDFLAGS)
 
 clean:
-	rm *.o
-	rm *.out
-	rm $(MAINS)
+	rm -f *.o
+	rm -f *.out
+	rm -f $(MAINS)

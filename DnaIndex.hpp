@@ -15,6 +15,9 @@ public:
    * @param all_genes_size Cumulative size of all genes (without any metadata) in bytes
    */
   DnaIndex(ullint all_genes_size);
+
+  // read index from FILE*
+  DnaIndex(FILE* in);
   ~DnaIndex();
 
   // insert a new gene in the library in order
@@ -33,16 +36,18 @@ public:
   // at most limit results are returned
   // the results do NOT have to be sorted in any way
   // clears results
-  // NOT THREAD SAFE!
   void get_substring_pos(std::vector<pair<ullint, ullint> >& results, const char* query, int query_len, int limit = 100);
+
+  void serialize(FILE* out) const;
+  void deserialize(FILE* in);
 
 private:
 
   ullint raw_position_to_gene_idx(ullint raw_position);
 
   ullint all_genes_size;
-  char* data_store;
-  ullint data_ptr;
+  char* data_store;  // used only before construction
+  ullint data_ptr;   // used only before construction
   bool index_created;
   ullint num_genes;
   std::shared_ptr<FmIndex> fmindex;

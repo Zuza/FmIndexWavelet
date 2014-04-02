@@ -28,6 +28,10 @@ RankedBitmap::RankedBitmap(const char* data, ullint data_len, ullint n_elements,
   init(data, data_len, n_elements, zero_lo, one_lo, one_hi);
 }
 
+RankedBitmap::RankedBitmap(FILE* in) {
+  deserialize(in);
+}
+
 void RankedBitmap::init(const char* data, ullint data_len, ullint n_elements, int zero_lo, int one_lo, int one_hi) {
   this->n_elements = n_elements;
   bitmask_sz = (n_elements + 7) >> 3; // ceil(n/8)

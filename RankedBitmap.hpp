@@ -13,6 +13,8 @@ public:
   // see function init(...)
   RankedBitmap(const char* data, ullint data_len, ullint n_elements, int zero_lo, int one_lo, int one_hi);
 
+  RankedBitmap(FILE* in);
+
   // (called automatically from constructor)
   // initialize bitmask with those indices i in [0, data_len) such that zero_lo <= data[i] < one_hi
   // assertion: there must be n_elements such ZERO+ONE indices

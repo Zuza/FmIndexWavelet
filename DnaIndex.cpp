@@ -21,6 +21,10 @@ DnaIndex::DnaIndex(ullint all_genes_size) : all_genes_size(all_genes_size){
   num_genes = 0;
 }
 
+DnaIndex::DnaIndex(FILE* in) {
+  deserialize(in);
+}
+
 DnaIndex::~DnaIndex() {
   delete[] data_store; data_store = NULL;  
 }
@@ -89,4 +93,24 @@ void DnaIndex::get_substring_pos(vector<pair<ullint, ullint> >& results, const c
 
 ullint DnaIndex::raw_position_to_gene_idx(ullint raw_position) {
   return separator_pos->get_rank(1, raw_position);
+}
+
+void DnaIndex::serialize(FILE* out) const {
+  assert(index_created);
+  ::serialize(out, all_genes_size);
+  ::serialize(out, num_genes);
+  fmindex->serialize(out);
+  serialize_vector(out, gene_starting_pos);
+  separator_pos->serialize(out);
+}
+
+void DnaIndex::deserialize(FILE* in) {
+  ::deserialize(in, all_genes_size);
+  data_store = NULL;
+  data_ptr = 0;
+  index_created = true;
+  ::deserialize(in, num_genes);
+  fmindex.reset(new FmIndex(in));
+  deserialize_vector(in, gene_starting_pos);
+  separator_pos.reset(new RankedBitmap(in));
 }
