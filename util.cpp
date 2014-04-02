@@ -1,8 +1,7 @@
 #include "util.hpp"
 
-// warning: not thread safe! static data!
 void alphabet_to_idxs(char* data, const ullint data_len, const char* alphabet, const ullint alphabet_sz) {
-  static char alphabet_map[256]; memset(alphabet_map, -1, sizeof alphabet_map); // TODO: change to thread local!
+  thread_local char alphabet_map[256]; memset(alphabet_map, -1, sizeof alphabet_map); // TODO: change to thread local!
   for (ullint i = 0; i < alphabet_sz; ++i) {
     alphabet_map[(int)alphabet[i]] = i;
   }

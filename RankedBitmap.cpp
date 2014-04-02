@@ -84,7 +84,7 @@ ullint RankedBitmap::get_rank(bool bit, ullint pos) {
     + superbuckets[pos >> kBitmapSuperbucketPow]
     + buckets[pos >> kBitmapBucketPow];
 
-  static int popCnt[256] = {-1};
+  thread_local int popCnt[256] = {-1};
   if (popCnt[0] == -1) {
     popCnt[0] = 0;
     for (int i = 1; i < 256; ++i)

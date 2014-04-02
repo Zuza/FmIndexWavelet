@@ -77,7 +77,7 @@ void DnaIndex::create_index() {
 
 void DnaIndex::get_substring_pos(vector<pair<ullint, ullint> >& results, const char* query, int query_len, int limit) {
   assert(index_created);
-  static vector<ullint> raw_positions; raw_positions.clear(); // TODO: change to thread local!!!
+  thread_local vector<ullint> raw_positions; raw_positions.clear(); // TODO: change to thread local!!!
   fmindex->get_substring_pos(raw_positions, query, query_len, limit);
   results.clear();
   for (ullint i = 0; i < raw_positions.size(); ++i) {

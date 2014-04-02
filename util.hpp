@@ -61,8 +61,8 @@ void deserialize_umap(FILE* in, std::unordered_map<U, V>& umap) {
   umap.clear();
 
   while (sz-- > 0) {
-    static U u;
-    static V v;
+    thread_local U u;
+    thread_local V v;
     deserialize(in, u);
     deserialize(in, v);
     umap[u] = v;
@@ -72,7 +72,6 @@ void deserialize_umap(FILE* in, std::unordered_map<U, V>& umap) {
 
 // transform data over alphabet to alphabet indexes
 // ex. data = "AGCTA", alphabet = "ACTG" -> data is transformed to {0, 2, 1, 3, 0}
-// WARNING: not thread safe! static data!
 void alphabet_to_idxs(char* data, const ullint data_len, const char* alphabet, const ullint alphabet_sz);
 
 // transform indexes in range [0, alphabet_sz-1] to alphabet[idxs]

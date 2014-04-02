@@ -40,7 +40,7 @@ int main() {
 
   FmIndex fmindex(data, data_len, alpha, alpha_sz);
 
-  auto slow_count_substrings = [&orig_data, data_len](const char* query, const int query_len, vector<ullint>& results) {
+  auto slow_count_substrings = [data_len](const char* query, const int query_len, vector<ullint>& results) {
     results.clear();
 
     ullint ret = 0;
