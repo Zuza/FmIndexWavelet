@@ -34,7 +34,7 @@ public:
   // the results do NOT have to be sorted in any way
   // clears results
   // NOT THREAD SAFE!
-  void get_substring_pos(vector<pair<ullint, ullint> >& results, const char* query, int query_len, int limit = 100);
+  void get_substring_pos(std::vector<pair<ullint, ullint> >& results, const char* query, int query_len, int limit = 100);
 
 private:
 
